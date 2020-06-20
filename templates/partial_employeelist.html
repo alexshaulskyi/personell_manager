@@ -1,0 +1,28 @@
+{% for employee in object_list %}
+  <tr>
+    <td class="text-md-center editable" data-model="User" data-field="first_name" value="{{employee.id}}"> 
+      {{ employee.first_name }} 
+    </td>
+    <td class="text-md-center editable" data-model="User" data-field="last_name" value="{{employee.id}}"> 
+      {{ employee.last_name }}
+    </td>
+    <td class="text-md-center editable-select-static" data-model="User" data-field="job_title" value="{{employee.id}}"> 
+      {{ employee.get_job_title_display }}
+    </td>
+    <td class="text-md-center editable" data-model="User" data-field="username" value="{{employee.id}}"> 
+      {{ employee.username }}
+    </td>
+    <td class="text-md-center editable" data-model="User" data-field="email" value="{{employee.id}}"> 
+      {{ employee.email }}
+    </td>
+    <td class="text-md-center"> 
+      <button type="button" class="btn btn-warning btn-sm delete-object" value="{{employee.id}}">
+        Удалить
+      </button>
+    </td>
+  </tr>
+{% empty %}
+  <tr>
+    <td colspan="7" class="text-center bg-warning">Сотрудников пока-что нет :(</td>
+  </tr>
+{% endfor %}

@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-start mt-2"></div>
+{% if request.user.job_title == 'MG' %}
+  <a class="btn btn-dark btn-lg ml-2" href="{% url 'employeelist' hotel.slug %}" role="button">Сотрудники</a>
+  <a class="btn btn-dark btn-lg ml-2" href="{% url 'cleaninglist' hotel.slug %}" role="button">Уборки</a>
+  <button type="button" class="btn btn-dark btn-lg ml-2 js-create-room" data-url="{% url 'ajax_create_room' %}"> Добавить комнату </button>
+{% endif %}
+</div>
+
+<!-- Modal itself -->
+<div class="modal fade" id="modal-room">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+    </div>
+  </div>
+</div>
+
+<!-- Cleaning display section -->
+<div class="row">
+  <table class="table table-hover table-bordered table-dark mt-3 ml-5 mr-5 mb-5" id="room-table">
+    <thead>
+      <tr>
+        <th scope="col-sm-1" class="text-md-center"> Корпус </th>
+        <th scope="col-sm-2" class="text-md-center"> Номер комнаты </th>
+        <th scope="col-sm-2" class="text-md-center"> Категория </th>
+        <th scope="col-sm-2" class="text-md-center"> Ответственная горничная </th>
+        <th scope="col-sm-2" class="text-md-center"> Тип уборки </th>
+        <th scope="col-sm-2" class="text-md-center"> Статус </th>
+        <th scope="col-sm-2" class="text-md-center"> Дата заезда </th>
+        <th scope="col-sm-2" class="text-md-center"> Дата выезда </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% include 'partial_roomlist.html' %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}
+
+{% block custom_js %}
+<script>
+
+$(document).ready(function(){
+
+  // Room create section
+
+  var loadForm = function () {
+  var btn = $(this);
+  $.ajax({
+    url: btn.attr("data-url"),
+    type: 'get',
+    dataType: 'json',
+    beforeSend: function () {
+      $("#modal-room .modal-content").html("");
+      $("#modal-room").modal("show");
+    },
+    success: function (data) {
+      $("#modal-room .modal-content").html(data.html_form);
+    }
+  });
+};
+
+var saveForm = function () {
+  var form = $(this);
+  $.ajax({
+    url: form.attr("action"),
+    data: form.serialize(),
+    type: form.attr("method"),
+    dataType: 'json',
+    success: function (data) {
+      if (data.form_is_valid) {
+        $("#room-table tbody").html(data.html_room_list);
+        $("#modal-room").modal("hide");
+      }
+      else {
+        $("#modal-room .modal-content").html(data.html_form);
+      }
+    }
+  });
+  return false;
+};
+
+  // Toggle appropriate form function
+
+  $(".js-create-room").click(loadForm);
+  $("#modal-room").on("submit", ".js-room-create-form", saveForm);
+
+  // Inline edit section
+
+  // Dynamically populated select-box elements processing section
+
+  $(document).on("dblclick", ".editable-select", function(){
+    var td = $(this)
+    var current_value = $(this).text();
+    var options_model_name = td.attr('data-options-model') // Name of objects which need to be added to options
+    var order_key = td.attr('order-key') // Ordering parameter
+    var sel = $('<select>')
+    sel.addClass('choice-box')
+    $.ajax({
+      url: "{% url 'ajax_update_dynamic_value' %}",
+      type: 'get',
+      dataType: 'json',
+      data: {'options_model_name': options_model_name, 'order_key': order_key},
+      success: function (data) {
+        td.html(sel)
+        $(data.data).each(function() {
+        sel.append($("<option>").attr('value', this.object_id).text(this.object_text));
+        td.removeClass('text-md-center editable-select').addClass('text-md-center')
+        })
+      }
+    });
+  });
+
+  $(document).on("blur", ".choice-box", function(){
+    var input_value_text = $(this).find("option:selected").text() // option object text
+    var selected_option_object_id = $(this).find("option:selected").val() // option object id
+    var td=$(this).parent("td");
+    var model_name = td.attr('data-model') // model name
+    var model_field = td.attr('data-field') // model field name
+    var model_instnace_id = td.attr('value') // model instance id
+    var selected_option_object_model = td.attr('data-options-model')
+    $(this).remove();
+    td.removeClass('text-md-center').addClass('text-md-center editable-select')
+    td.html(input_value_text);
+    $.ajax({
+      url: "{% url 'ajax_update_dynamic_value' %}",
+      type: 'post',
+      dataType: 'json',
+      data: {'selected_option_object_id': selected_option_object_id, 'selected_option_object_model': selected_option_object_model, 'model_name': model_name, 'model_field_name': model_field, 'model_instance_id': model_instnace_id, 'csrfmiddlewaretoken': "{{ csrf_token }}"},
+      success: function (data) {
+        td.html(data.object_text)
+      }
+    })
+  }); 
+
+  // Input fields processing section
+
+  $(document).on("dblclick", ".editable", function(){
+    var current_value = $(this).text();
+    var input_type = 'text'
+    var input="<input type='"+input_type+"' class='input-data' value='"+current_value+"'>";
+    $(this).html(input);
+    $(this).removeClass('text-md-center editable').addClass('text-md-center')
+  });
+
+  $(document).on("blur", ".input-data", function(){
+    var new_value = $(this).val();
+    var td=$(this).parent("td");
+    $(this).remove();
+    td.html(new_value);
+    var model_name = td.attr('data-model')
+    var model_field = td.attr('data-field')
+    var model_instnace_id = td.attr('value')
+    td.removeClass('text-md-center').addClass('text-md-center editable')
+    $.ajax({
+      url: "{% url 'ajax_update_static_value' %}",
+      type: 'post',
+      dataType: 'json',
+      data: {'model_name': model_name, 'model_field_name': model_field, 'model_instance_id': model_instnace_id, 'new_value': new_value, 'csrfmiddlewaretoken': "{{ csrf_token }}"},
+      success: function (data) {
+        td.html(data.new_value)
+      }
+    })
+  });
+
+// Delete room
+$(document).on("click", '.delete-object', function(event){
+    event.preventDefault();
+    var object_id = $(this).attr('value')
+    $.ajax({
+            url: "{% url 'ajax_delete_room' %}",
+            type: "POST",
+            data: {'object_id': object_id, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+            dataType: 'json',
+            success: function (data) {
+              $("#room-table tbody").html(data.data);
+            },
+          });
+  });
+
+// Intializing static select-box
+
+var title_select = [
+  {value : 'DT', object_text: 'Грязная'},
+  {value : 'CL', object_text: 'Чистая'},
+  {value : 'DnD', object_text: 'Не беспокоить'},
+  {value : 'MiR', object_text: 'Горничная в номере'}
+  ];
+
+  $(document).on("dblclick", ".editable-select-static", function(){
+    var td = $(this)
+    var sel = $('<select>')
+    sel.addClass('choice-box-static')
+    $(title_select).each(function() {
+      sel.append($("<option>").attr('value', this.value).text(this.object_text));
+    })
+    td.html(sel)
+    td.removeClass('text-md-center editable-select').addClass('text-md-center')
+  });
+
+  $(document).on("blur", ".choice-box-static", function(){
+    var input_value_text = $(this).find("option:selected").text() // option object text
+    var new_value = $(this).find("option:selected").val() // selected value
+    var td=$(this).parent("td");
+    var model_name = td.attr('data-model') // model name
+    var model_field = td.attr('data-field') // model field name
+    var model_instnace_id = td.attr('value') // model instance id
+    $(this).remove();
+    td.removeClass('text-md-center').addClass('text-md-center editable-select')
+    td.html(input_value_text);
+    $.ajax({
+      url: "{% url 'ajax_update_static_value' %}",
+      type: 'post',
+      dataType: 'json',
+      data: {'new_value': new_value, 'model_name': model_name, 'model_field_name': model_field, 'model_instance_id': model_instnace_id, 'csrfmiddlewaretoken': "{{ csrf_token }}"},
+      success: function (data) {
+        td.html(data.object_text)
+      }
+    }) 
+  });
+
+// Date-fields
+
+  $(document).on("dblclick", ".editable", function(){
+    var current_value = $(this).text();
+    var input_type = 'text'
+    var input="<input type='"+input_type+"' class='input-data' value='"+current_value+"'>";
+    $(this).html(input);
+    $(this).removeClass('text-md-center editable').addClass('text-md-center')
+  });
+
+  $(document).on("blur", ".input-data", function(){
+    var new_value = $(this).val();
+    var td=$(this).parent("td");
+    $(this).remove();
+    td.html(new_value);
+    var model_name = td.attr('data-model')
+    var model_field = td.attr('data-field')
+    var model_instnace_id = td.attr('value')
+    td.removeClass('text-md-center').addClass('text-md-center editable')
+    $.ajax({
+      url: "{% url 'ajax_update_static_value' %}",
+      type: 'post',
+      dataType: 'json',
+      data: {'model_name': model_name, 'model_field_name': model_field, 'model_instance_id': model_instnace_id, 'new_value': new_value, 'csrfmiddlewaretoken': "{{ csrf_token }}"},
+      success: function (data) {
+        td.html(data.new_value)
+      }
+    })
+  });
+});
+</script>
+{% endblock custom_js %}
+
+

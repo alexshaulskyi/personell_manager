@@ -1,0 +1,37 @@
+{% for room in object_list %}
+  <tr>
+    <td class="text-md-center editable-select" data-model="Room" data-field="building" data-options-model="Building" order-key="name" value="{{room.id}}"> 
+        {{room.building}}
+    </td>
+    <td class="text-md-center editable" data-model="Room" data-field="number" value="{{room.id}}"> 
+        {{room.number}}
+    </td>
+    <td class="text-md-center editable" data-model="Room" data-field="category" value="{{room.id}}"> 
+        {{room.category}}
+    </td>
+    <td class="text-md-center editable-select" data-model="Room" data-field="maid" data-options-model="User" order-key="first_name" value="{{room.id}}"> 
+        {{room.maid}}
+    </td>
+    <td class="text-md-center editable-select" data-model="Room" data-field="cleaning_type" data-options-model="Cleaning" order-key="name" value="{{room.id}}"> 
+        {{room.cleaning_type}}
+    </td>
+    <td class="text-md-center editable-select-static" data-model="Room" data-field="status" value="{{room.id}}">
+        {{room.get_status_display}}
+    </td>
+    <td class="text-md-center editable-datepicker" data-model="Room" data-field="checkin_date" value="{{room.id}}"> 
+        {{room.checkin_date}}
+    </td>
+    <td class="text-md-center editable-datepicker" data-model="Room" data-field="checkout_date" value="{{room.id}}">  
+        {{room.checkout_date}}
+    </td>
+    <td class="text-md-center"> 
+      <button type="button" class="btn btn-warning btn-sm delete-object" value="{{room.id}}">
+        Удалить
+      </button>
+    </td>
+  </tr>
+{% empty %}
+  <tr>
+    <td colspan="7" class="text-center bg-warning">Комнат пока-что нет :( Скорее добавь какую-нибудь</td>
+  </tr>
+{% endfor %}

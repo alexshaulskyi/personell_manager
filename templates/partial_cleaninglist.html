@@ -1,0 +1,23 @@
+{% for cleaning in object_list %}
+  <tr>
+    <td class="text-md-center editable" data-model="Cleaning" data-field="name" value="{{cleaning.id}}"> 
+      {{cleaning.name}}
+    </td>
+    <td class="text-md-center editable" data-model="Cleaning" data-field="difficulty" value="{{cleaning.id}}"> 
+      {{cleaning.difficulty}}
+    </td>
+    <td class="text-md-center editable" data-model="Cleaning" data-field="frequency" value="{{cleaning.id}}"> 
+      {{cleaning.frequency}}
+    </td>
+    <td class="text-md-center"> 
+      <button type="button" class="btn btn-warning btn-sm delete-object" value="{{cleaning.id}}">
+        Удалить
+      </button>
+    </td>
+  </tr>
+{% empty %}
+  <tr>
+    <td colspan="7" class="text-center bg-warning">Видов уборок пока-что нет :( Скорее добавь какую-нибудь</td>
+  </tr>
+{% endfor %}
+

@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Button that triggers modal with form to add an cleaning -->
+<div class="row justify-content-start mt-1 ml-2">
+    <button type="button" class="btn btn-dark btn-lg js-create-cleaning" data-url="{% url 'ajax_create_cleaning' %}">
+        Добавить уборку
+      </button>
+    <a href="{% url 'dashboard' tidentifier %}" class="btn btn-dark btn-lg ml-2" role="button"> Панель управления </a>
+</div>
+
+<!-- Modal itself -->
+<div class="modal fade" id="modal-cleaning">
+    <div class="modal-dialog">
+      <div class="modal-content">
+  
+      </div>
+    </div>
+  </div>
+  
+<!-- Cleaning display section -->
+<div class="row">
+    <table class="table table-hover table-bordered table-dark mt-3 ml-5 mr-5 mb-5" id="cleaning-table">
+      <thead>
+        <tr>
+          <th scope="col-sm-1" class="text-md-center"> Название уборки </th>
+          <th scope="col-sm-2" class="text-md-center"> Сложность </th>
+          <th scope="col-sm-2" class="text-md-center"> Частота </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% include 'partial_cleaninglist.html' %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
+
+{% block custom_js %}
+<script>
+
+$(function () {
+
+// Create cleaning
+
+var loadForm = function () {
+  var btn = $(this);
+  $.ajax({
+    url: btn.attr("data-url"),
+    type: 'get',
+    dataType: 'json',
+    beforeSend: function () {
+      $("#modal-cleaning .modal-content").html("");
+      $("#modal-cleaning").modal("show");
+    },
+    success: function (data) {
+      $("#modal-cleaning .modal-content").html(data.html_form);
+    }
+  });
+};
+
+var saveForm = function () {
+  var form = $(this);
+  $.ajax({
+    url: form.attr("action"),
+    data: form.serialize(),
+    type: form.attr("method"),
+    dataType: 'json',
+    success: function (data) {
+      if (data.form_is_valid) {
+        $("#cleaning-table tbody").html(data.html_cleaning_list);
+        $("#modal-cleaning").modal("hide");
+      }
+      else {
+        $("#modal-cleaning .modal-content").html(data.html_form);
+      }
+    }
+  });
+  return false;
+};
+
+
+// Toggle appropriate form function
+
+$(".js-create-cleaning").click(loadForm);
+$("#modal-cleaning").on("submit", ".js-cleaning-create-form", saveForm);
+
+// Inline edit section. 
+
+  // Input fields processing section
+
+  $(document).on("dblclick", ".editable", function(){
+    var current_value = $(this).text();
+    var input_type = 'text'
+    var input="<input type='"+input_type+"' class='input-data' value='"+current_value+"'>";
+    $(this).html(input);
+    $(this).removeClass('text-md-center editable').addClass('text-md-center')
+  });
+
+  $(document).on("blur", ".input-data", function(){
+    var new_value = $(this).val();
+    var td=$(this).parent("td");
+    $(this).remove();
+    td.html(new_value);
+    var model_name = td.attr('data-model')
+    var model_field = td.attr('data-field')
+    var model_instnace_id = td.attr('value')
+    td.removeClass('text-md-center').addClass('text-md-center editable')
+    $.ajax({
+      url: "{% url 'ajax_update_static_value' %}",
+      type: 'post',
+      dataType: 'json',
+      data: {'model_name': model_name, 'model_field_name': model_field, 'model_instance_id': model_instnace_id, 'new_value': new_value, 'csrfmiddlewaretoken': "{{ csrf_token }}"},
+      success: function (data) {
+        td.html(data.new_value)
+      }
+    })
+  });
+
+// Delete cleaning
+$(document).on("click", '.delete-object', function(event){
+    event.preventDefault();
+    var object_id = $(this).attr('value')
+    $.ajax({
+            url: "{% url 'ajax_delete_cleaning' %}",
+            type: "POST",
+            data: {'object_id': object_id, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+            dataType: 'json',
+            success: function (data) {
+              $("#cleaning-table tbody").html(data.data);
+            },
+          });
+  });
+});
+</script>
+{% endblock %}
