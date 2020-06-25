@@ -17,7 +17,7 @@ Anyone can register and then create a property. Users can only access and see th
 
 ## Released updates:
 
-**25.06.2020** Allowed modification of specific fields depending on user role (maids can only change room status, administrators can change status and checkin/checkout date)
+**25.06.2020** Allowed modification of specific fields depending on user role (maids can only change room status, administrators can change status and checkin/checkout date) <br>
 **25.06.2020** Depending on user role only specific rooms are displayed (i.e. maid can only see rooms which she is responsible for)
 
 ## Planned updates:
