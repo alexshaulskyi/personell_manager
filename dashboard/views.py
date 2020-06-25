@@ -119,7 +119,10 @@ class Dashboard(View):
         hotel = Hotel.objects.get(slug=tidentifier)
         if not request.user.is_authenticated or request.user.works_for != hotel.name or request.user.property_id != hotel.property_id:
             return redirect('index')
-        rooms = Room.objects.filter(property_id=request.user.property_id).order_by('number')
+        if request.user.job_title in ['MG', 'AD']:
+            rooms = Room.objects.filter(property_id=request.user.property_id).order_by('number')
+        else:
+            rooms = Room.objects.filter(property_id=request.user.property_id, maid_id=request.user.id).order_by('number')
         return render(request, 'dashboard.html', {'object_list': rooms, 'hotel': hotel})
 
 class CreateRoom(View):
@@ -167,6 +170,10 @@ class UpdateDynamicSelectBox(View):
 
         model_name = request.GET.get('options_model_name', '') #Name of a model selected options belongs to
         order_key = request.GET.get('order_key', '') #Value to order queryset
+
+        if request.user.job_title == 'ST':
+            data = {'error': 'У вас недостаточно прав для совершения данного действия'}
+            return JsonResponse(data)
 
         if model_name == 'User':
             model = apps.get_model('users', model_name)
@@ -216,15 +223,20 @@ class UpdateStaticFieldsAndSelectElements(View):
         model_field_name = request.POST.get('model_field_name', '')
         model_instance_id = request.POST.get('model_instance_id', '')
 
+        if request.user.job_title == 'ST' and model_field_name != 'status':
+            data = {'error': 'У вас не достаточно прав для совершения данного действия'}
+            return JsonResponse(data)
+
         if model_name == 'User':
             update_object_model = apps.get_model('users', model_name)
         else:
             update_object_model = apps.get_model('dashboard', model_name)
+        
         update_object = get_object_or_404(update_object_model, id=model_instance_id)
         setattr(update_object, model_field_name, new_value)
         update_object.save()
 
-        data = {'object_text': getattr(update_object, get_model_field_name_display())}
+        data = {'object_text': getattr(update_object, model_field_name)}
 
         return JsonResponse(data)
 
@@ -241,4 +253,3 @@ def processor(request):
     hotel = get_object_or_404(Hotel, property_id=property_id)
     slug = hotel.slug
     return redirect('dashboard', tidentifier=slug)
-

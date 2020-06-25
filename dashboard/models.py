@@ -2,10 +2,10 @@ from django.db import models
 from users.models import User
 
 room_status = [
-    ('DT', 'Грязная'),
-    ('CL', 'Чистая'),
-    ('DnD', 'Не беспокоить'),
-    ('MiR', 'Горничная в номере')
+    ('Грязная', 'Грязная'),
+    ('Чистая', 'Чистая'),
+    ('Не беспокоить', 'Не беспокоить'),
+    ('Горничная в номере', 'Горничная в номере')
 ]
 
 class Hotel(models.Model):
@@ -40,7 +40,7 @@ class Room(models.Model):
     category = models.CharField(max_length=50)
     cleaning_type = models.ForeignKey(Cleaning, on_delete=models.PROTECT, related_name='rooms', blank=True, null=True)
     maid = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='rooms', blank=True, null=True)
-    status = models.CharField(max_length=3, choices=room_status, blank=True, null=True)
-    checkin_date = models.DateTimeField(null=True, blank=True, auto_now_add=False)
-    checkout_date = models.DateTimeField(null=True, blank=True, auto_now_add=False)
+    status = models.CharField(max_length=18, choices=room_status, blank=True, null=True)
+    checkin_date = models.DateField(null=True, blank=True, auto_now_add=False)
+    checkout_date = models.DateField(null=True, blank=True, auto_now_add=False)
     property_id = models.CharField(max_length=48)

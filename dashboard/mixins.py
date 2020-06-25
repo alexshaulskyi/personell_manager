@@ -10,6 +10,9 @@ class DeleteMixin:
 
     def post(self, request):
 
+        if request.user.job_title != 'MG':
+            return JsonResponse({'error': 'У вас недостаточно прав для совершения выбранного действия'})
+
         obj = get_object_or_404(self.model, id=request.POST.get('object_id', ''))
         obj.delete()
 
