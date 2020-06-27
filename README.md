@@ -8,7 +8,11 @@ Improve my Django skills. Improve understanding of Front-end in general and Java
 
 ## Description
 
+<<<<<<< HEAD
 Anyone can register a user and then create a property.
+=======
+Anyone can register and then create a property. Users can only access and see their own property. After registration it is possible to add rooms, cleaning types and create employees accounts, which they will use to log in.
+>>>>>>> b55571bb105316b42e5ada4d651ddf41ac59c8e3
 
 ## Released updates:
 
