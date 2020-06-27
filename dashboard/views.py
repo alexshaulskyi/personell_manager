@@ -11,6 +11,7 @@ from django.http import JsonResponse
 from django.template.loader import render_to_string
 from users.models import title_choices
 from django.apps import apps
+import datetime as dt
 
 from .mixins import DeleteMixin
 
@@ -123,7 +124,7 @@ class Dashboard(View):
             rooms = Room.objects.filter(property_id=request.user.property_id).order_by('number')
         else:
             rooms = Room.objects.filter(property_id=request.user.property_id, maid_id=request.user.id).order_by('number')
-        return render(request, 'dashboard.html', {'object_list': rooms, 'hotel': hotel})
+        return render(request, 'dashboard.html', {'object_list': rooms, 'hotel': hotel, 'tidentifier': tidentifier})
 
 class CreateRoom(View):
 
@@ -233,7 +234,11 @@ class UpdateStaticFieldsAndSelectElements(View):
             update_object_model = apps.get_model('dashboard', model_name)
         
         update_object = get_object_or_404(update_object_model, id=model_instance_id)
-        setattr(update_object, model_field_name, new_value)
+        
+        if new_value == '':
+            setattr(update_object, model_field_name, None)
+        else:
+            setattr(update_object, model_field_name, new_value)
         update_object.save()
 
         data = {'object_text': getattr(update_object, model_field_name)}
@@ -253,3 +258,33 @@ def processor(request):
     hotel = get_object_or_404(Hotel, property_id=property_id)
     slug = hotel.slug
     return redirect('dashboard', tidentifier=slug)
+
+class CleaningAssigner(View):
+
+    def post(self, request, tidentifier):
+
+        hotel = Hotel.objects.filter(slug=tidentifier)
+
+        if request.user.job_title in ['AD', 'ST']:
+            return redirect('dashboard', tidentifier=tidentifier)
+        
+        rooms = Room.objects.filter(property_id=request.user.property_id)
+        
+        for room in rooms:
+            if room.checkin_date:
+
+                difference = dt.datetime.now().date() - room.checkin_date
+                int_difference = difference.days
+                if Cleaning.objects.filter(property_id=request.user.property_id, frequency=int_difference).exists():
+                    
+                    cleaning = Cleaning.objects.get(property_id=request.user.property_id, frequency=int_difference)
+                    room.cleaning_type=cleaning
+                    room.save()
+                
+                else:
+
+                    pass
+        
+        rooms = Room.objects.filter(property_id=request.user.property_id).order_by('number')
+
+        return render(request, 'dashboard.html', {'object_list': rooms, 'hotel': hotel, 'tidentifier': tidentifier})

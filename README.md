@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Personnel manager
 
 Service which will allow chief maid, technician officer or shift manager to effectively manage maids and technicians.
@@ -9,12 +8,7 @@ Improve my Django skills. Improve understanding of Front-end in general and Java
 
 ## Description
 
-Anyone can register and then create a property. Users can only access and see their own property. After registration it is possible to add rooms, cleaning types and create employees accounts, which they will use to log in.
-
-## Achieved goals
-
-* CRUD operations related to rooms, employees and cleanings are performed via AJAX calls.
-* Modification of rooms, employees and cleanings data is IN-PLACE edit based.
+Anyone can register a user and then create a property.
 
 ## Released updates:
 
@@ -34,6 +28,3 @@ Listed in descending priority order.
 * Messenger notifications to maids if cleaning schedule was changed.
 * Messenger notifications to administrators if rooms status was changed.
 * Style improvement.
-=======
-
->>>>>>> f59042fca6f2199dfe8451c48d2401f96ef6fbc3
