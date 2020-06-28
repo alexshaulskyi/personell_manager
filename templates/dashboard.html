@@ -6,10 +6,7 @@
   <a class="btn btn-dark btn-lg ml-2" href="{% url 'employeelist' tidentifier %}" role="button">Сотрудники</a>
   <a class="btn btn-dark btn-lg ml-2" href="{% url 'cleaninglist' tidentifier %}" role="button">Уборки</a>
   <button type="button" class="btn btn-dark btn-lg ml-2 js-create-room" data-url="{% url 'ajax_create_room' %}"> Добавить комнату </button>
-  <form action="{% url 'assign_cleaning' tidentifier %}" method="POST">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-dark btn-lg ml-2 update-cleanings"> Назначить уборки </button>
-  </form>
+  <button type="submit" class="btn btn-dark btn-lg ml-2 update-cleanings"> Назначить уборки </button>
 {% endif %}
 </div>
 
@@ -275,6 +272,24 @@ var title_select = [
         });
       }
     });
+  });
+
+// Set cleanings function
+
+  $(document).on('click', '.update-cleanings', function(){
+    $.ajax({
+      url: '{% url "assign_cleaning" %}',
+      type: 'post',
+      dataType: 'json',
+      data: {'csrfmiddlewaretoken': '{{ csrf_token }}'},
+      success: function(data) {
+        if ('error' in data) {
+          alert(data.error)
+        } else {
+        $("#room-table tbody").html(data.html_room_list);
+      }
+      }
+    })
   });
 });
 </script>

@@ -234,7 +234,7 @@ class UpdateStaticFieldsAndSelectElements(View):
             update_object_model = apps.get_model('dashboard', model_name)
         
         update_object = get_object_or_404(update_object_model, id=model_instance_id)
-        
+
         if new_value == '':
             setattr(update_object, model_field_name, None)
         else:
@@ -261,12 +261,11 @@ def processor(request):
 
 class CleaningAssigner(View):
 
-    def post(self, request, tidentifier):
+    def post(self, request):
 
-        hotel = Hotel.objects.filter(slug=tidentifier)
-
-        if request.user.job_title in ['AD', 'ST']:
-            return redirect('dashboard', tidentifier=tidentifier)
+        if request.user.job_title == 'ST':
+            data = {'error': 'У вас недостаточно прав для совершения этого действия'}
+            return JsonResponse(data)
         
         rooms = Room.objects.filter(property_id=request.user.property_id)
         
@@ -286,5 +285,5 @@ class CleaningAssigner(View):
                     pass
         
         rooms = Room.objects.filter(property_id=request.user.property_id).order_by('number')
-
-        return render(request, 'dashboard.html', {'object_list': rooms, 'hotel': hotel, 'tidentifier': tidentifier})
+        data = {'html_room_list': render_to_string('partial_roomlist.html', {'object_list': rooms})}
+        return JsonResponse(data)

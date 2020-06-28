@@ -15,6 +15,7 @@ urlpatterns = [
     path('dashboard/addroom/', CreateRoom.as_view(), name='ajax_create_room'),
     path('dashboard/deleteroom/', DeleteRoom.as_view(), name='ajax_delete_room'),
     path('dashboard/deletecleaning/', DeleteCleaning.as_view(), name='ajax_delete_cleaning'),
+    path('dashboard/setclenings/', CleaningAssigner.as_view(), name='assign_cleaning'),
     path('dashboard/<slug:tidentifier>/', Dashboard.as_view(), name='dashboard'),
     path('dashboard/<slug:tidentifier>/setclenings/', CleaningAssigner.as_view(), name='assign_cleaning'),
     path('dashboard/<slug:tidentifier>/employeelist/', EmployeeList.as_view(), name='employeelist'),
