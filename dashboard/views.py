@@ -281,8 +281,13 @@ class CleaningAssigner(View):
                     room.save()
                 
                 else:
-
+                    
                     pass
+                
+            else:
+
+                room.cleaning_type=None
+                room.save()
         
         rooms = Room.objects.filter(property_id=request.user.property_id).order_by('number')
         data = {'html_room_list': render_to_string('partial_roomlist.html', {'object_list': rooms})}
