@@ -38,7 +38,7 @@ class Room(models.Model):
     building = models.ForeignKey(Building, on_delete=models.CASCADE, related_name='rooms', blank=True, null=True)
     number = models.IntegerField()
     category = models.CharField(max_length=50)
-    cleaning_type = models.ForeignKey(Cleaning, on_delete=models.PROTECT, related_name='rooms', blank=True, null=True)
+    cleaning_type = models.ForeignKey(Cleaning, on_delete=models.SET_NULL, related_name='rooms', blank=True, null=True)
     maid = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='rooms', blank=True, null=True)
     status = models.CharField(max_length=18, choices=room_status, blank=True, null=True)
     checkin_date = models.DateField(null=True, blank=True, auto_now_add=False)

@@ -38,6 +38,9 @@ class EmployeeList(ListView):
 class CreateEmployee(View):
 
     def get(self, request):
+        if not request.is_ajax():
+            hotel = get_object_or_404(Hotel, property_id=request.user.property_id)
+            return redirect('dashboard', tidentifier=hotel.slug)
         data = dict()
         form = AddEmployee()
         context = {'form': form}
@@ -83,6 +86,9 @@ class CleaningList(ListView):
 class CreateCleaning(View):
 
     def get(self, request):
+        if not request.is_ajax():
+            hotel = get_object_or_404(Hotel, property_id=request.user.property_id)
+            return redirect('dashboard', tidentifier=hotel.slug)
         data = dict()
         form = CleaningCreate()
         context = {'form': form}
@@ -129,6 +135,9 @@ class Dashboard(View):
 class CreateRoom(View):
 
     def get(self, request):
+        if not request.is_ajax():
+            hotel = get_object_or_404(Hotel, property_id=request.user.property_id)
+            return redirect('dashboard', tidentifier=hotel.slug)
         data = dict()
         form = RoomCreate()
         hotel = get_object_or_404(Hotel, property_id=request.user.property_id)
@@ -168,6 +177,10 @@ foreign key fields."""
 class UpdateDynamicSelectBox(View):
 
     def get(self, request):
+
+        if not request.is_ajax():
+            hotel = get_object_or_404(Hotel, property_id=request.user.property_id)
+            return redirect('dashboard', tidentifier=hotel.slug)
 
         model_name = request.GET.get('options_model_name', '') #Name of a model selected options belongs to
         order_key = request.GET.get('order_key', '') #Value to order queryset
@@ -217,6 +230,12 @@ select boxes """
 
 class UpdateStaticFieldsAndSelectElements(View):
 
+    def get(self, request):
+        
+        hotel = get_object_or_404(Hotel, property_id=request.user.property_id)
+        return redirect('dashboard', tidentifier=hotel.slug)
+
+
     def post(self, request):
 
         new_value = request.POST.get('new_value', '')
@@ -260,6 +279,11 @@ def processor(request):
     return redirect('dashboard', tidentifier=slug)
 
 class CleaningAssigner(View):
+
+    def get(self, request):
+        
+        hotel = get_object_or_404(Hotel, property_id=request.user.property_id)
+        return redirect('dashboard', tidentifier=hotel.slug)
 
     def post(self, request):
 
