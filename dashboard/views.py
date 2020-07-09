@@ -30,6 +30,11 @@ class EmployeeList(ListView):
         context['object_list'] = self.model.objects.filter(property_id=self.request.user.property_id).order_by('first_name')
         return context
 
+    def dispatch(self, request, tidentifier):
+        if not request.user.job_title == 'MG':
+            return redirect('dashboard', tidentifier=tidentifier)
+        return super(EmployeeList, self).dispatch(request)
+
 class CreateEmployee(View):
 
     def get(self, request):
@@ -77,6 +82,11 @@ class CleaningList(ListView):
         context['tidentifier'] = self.kwargs.get('tidentifier')
         context['object_list'] = self.model.objects.filter(property_id=self.request.user.property_id).order_by('name')
         return context
+
+    def dispatch(self, request, tidentifier):
+        if not request.user.job_title == 'MG':
+            return redirect('dashboard', tidentifier=tidentifier)
+        return super(CleaningList, self).dispatch(request)
 
 class CreateCleaning(View):
 
@@ -275,12 +285,11 @@ def processor(request):
 
 class CleaningAssigner(View):
 
-    def get(self, request):
+    def get(self, request, tidentifier):
         
-        hotel = get_object_or_404(Hotel, property_id=request.user.property_id)
-        return redirect('dashboard', tidentifier=hotel.slug)
+        return redirect('dashboard', tidentifier=tidentifier)
 
-    def post(self, request):
+    def post(self, request, tidentifier):
 
         if request.user.job_title == 'ST':
             data = {'error': 'У вас недостаточно прав для совершения этого действия'}

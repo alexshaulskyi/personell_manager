@@ -276,7 +276,7 @@ var title_select = [
 
   $(document).on('click', '.update-cleanings', function(){
     $.ajax({
-      url: '{% url "assign_cleaning" %}',
+      url: '{% url "assign_cleaning" tidentifier %}',
       type: 'post',
       dataType: 'json',
       data: {'csrfmiddlewaretoken': '{{ csrf_token }}'},
