@@ -145,10 +145,8 @@ var saveForm = function () {
   // Input fields processing section
 
   $(document).on("dblclick", ".editable", function(){
-    var current_value = $(this).text();
-    var dataf = $(this).attr('data-fiel')
-    var input_type = 'text'
-    var input="<input type='"+input_type+"' class='input-data' value='"+current_value+"'>";
+    var current_value = $(this).text().trim();
+    var input="<input type='text' class='input-data' value='"+current_value+"'>";
     $(this).html(input);
     $(this).removeClass('text-md-center editable').addClass('text-md-center')
   });

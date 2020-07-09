@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth.decorators import login_required
-from .views import (Index, PropertyCreate, CleaningCreate, CreateEmployee,
+from .views import (Index, CleaningCreate, CreateEmployee,
                    EmployeeList, CreateCleaning, CreateRoom, UpdateDynamicSelectBox,
                    UpdateStaticFieldsAndSelectElements, DeleteEmployee, CleaningList,
                    DeleteCleaning, Dashboard, DeleteRoom, CleaningAssigner)
@@ -8,11 +8,10 @@ from . import views
 
 urlpatterns = [
     path('', Index.as_view(), name='index'),
-    path('propertycreate/', PropertyCreate.as_view(), name='property_create'),
     path('redirectprocessor/', views.processor, name='redirectprocessor'),
     path('dashboard/updatedynamicvalue/', UpdateDynamicSelectBox.as_view(), name='ajax_update_dynamic_value'),
     path('dashboard/updatestaticvalue/', UpdateStaticFieldsAndSelectElements.as_view(), name='ajax_update_static_value'),
-    path('dashboard/deleteemployee/', DeleteRoom.as_view(), name='ajax_delete_employee'),
+    path('dashboard/deleteemployee/', DeleteEmployee.as_view(), name='ajax_delete_employee'),
     path('dashboard/addemployee/', CreateEmployee.as_view(), name='ajax_create_employee'),
     path('dashboard/addcleaning/', CreateCleaning.as_view(), name='ajax_create_cleaning'),
     path('dashboard/addroom/', CreateRoom.as_view(), name='ajax_create_room'),

@@ -13,11 +13,6 @@ class UpdateEmployee(forms.ModelForm):
         model = User
         fields = ("first_name", "last_name", "username", "email", "job_title")
 
-class PropertyCreationFrom(forms.ModelForm):
-    class Meta:
-        model = Hotel
-        fields = ('name', 'slug', 'property_id')
-
 class CleaningCreate(forms.ModelForm):
     class Meta:
         model = Cleaning

@@ -89,7 +89,7 @@ $("#modal-cleaning").on("submit", ".js-cleaning-create-form", saveForm);
   // Input fields processing section
 
   $(document).on("dblclick", ".editable", function(){
-    var current_value = $(this).text();
+    var current_value = $(this).text().trim();
     var input_type = 'text'
     var input="<input type='"+input_type+"' class='input-data' value='"+current_value+"'>";
     $(this).html(input);

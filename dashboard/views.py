@@ -3,7 +3,7 @@ from django.views.generic.base import TemplateView
 from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView
 from django.views.generic import ListView, UpdateView, DeleteView
-from .forms import PropertyCreationFrom, AddEmployee, UpdateEmployee, CleaningCreate, RoomCreate
+from .forms import AddEmployee, UpdateEmployee, CleaningCreate, RoomCreate
 from .models import Hotel, Cleaning, Room
 from users.models import User
 from django.views.generic import View
@@ -18,11 +18,6 @@ from .mixins import DeleteMixin
 
 class Index(TemplateView):
     template_name = 'index.html'
-
-class PropertyCreate(CreateView):
-    template_name = 'property_create.html'
-    form_class = PropertyCreationFrom
-    success_url = reverse_lazy('index')
 
 #Employees section. Display, create and delete actions.
 class EmployeeList(ListView):
