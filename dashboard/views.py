@@ -3,7 +3,7 @@ from django.views.generic.base import TemplateView
 from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView
 from django.views.generic import ListView, UpdateView, DeleteView
-from .forms import AddEmployee, UpdateEmployee, CleaningCreate, RoomCreate
+from .forms import AddEmployee, CleaningCreate, RoomCreate
 from .models import Hotel, Cleaning, Room
 from users.models import User
 from django.views.generic import View
@@ -103,10 +103,12 @@ class CreateCleaning(View):
 
     def post(self, request):
         data = dict()
+        hotel = get_object_or_404(Hotel, property_id=request.user.property_id)
         form = CleaningCreate(request.POST)
         if form.is_valid():
             form.save(commit=False)
             form.instance.property_id = request.user.property_id
+            form.instance.hotel = hotel
             form.save()
             data.update({'form_is_valid': True})
 

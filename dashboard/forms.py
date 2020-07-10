@@ -8,11 +8,6 @@ class AddEmployee(UserCreationForm):
         model = User
         fields = ("first_name", "last_name", "username", "email", "job_title")
 
-class UpdateEmployee(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = ("first_name", "last_name", "username", "email", "job_title")
-
 class CleaningCreate(forms.ModelForm):
     class Meta:
         model = Cleaning

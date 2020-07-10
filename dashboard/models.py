@@ -11,7 +11,7 @@ room_status = [
 class Hotel(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
-    property_id = models.CharField(max_length=48)
+    property_id = models.CharField(max_length=88)
 
     def __str__(self):
         return self.name
@@ -19,16 +19,17 @@ class Hotel(models.Model):
 class Building(models.Model):
     name = models.CharField(max_length=100, unique=True)
     hotel = models.ForeignKey(Hotel, on_delete=models.CASCADE, related_name='buildings')
-    property_id = models.CharField(max_length=48)
+    property_id = models.CharField(max_length=88)
 
     def __str__(self):
         return self.name
 
 class Cleaning(models.Model):
+    hotel = models.ForeignKey(Hotel, on_delete=models.CASCADE, related_name='cleanings')
     name = models.CharField(max_length=100)
     difficulty = models.FloatField()
     frequency = models.IntegerField()
-    property_id = models.CharField(max_length=48)
+    property_id = models.CharField(max_length=88)
 
     def __str__(self):
         return self.name
@@ -43,4 +44,4 @@ class Room(models.Model):
     status = models.CharField(max_length=18, choices=room_status, blank=True, null=True)
     checkin_date = models.DateField(null=True, blank=True, auto_now_add=False)
     checkout_date = models.DateField(null=True, blank=True, auto_now_add=False)
-    property_id = models.CharField(max_length=48)
+    property_id = models.CharField(max_length=88)

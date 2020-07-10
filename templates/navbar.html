@@ -1,8 +1,8 @@
 <nav class="navbar navbar-dark bg-dark justify-content-end justify-center">
     {% if request.user.is_authenticated %}
     <span class="text-white">Пользователь: {{ request.user.first_name }} {{ request.user.username }}</span>  
-    <a class="btn btn-dark" href='/auth/logout/' role="button">Выйти из системы</a>
     <a class="btn btn-dark" href='/auth/password_change/' role="button">Изменить пароль</a>
+    <a class="btn btn-dark" href='/auth/logout/' role="button">Выйти из системы</a>
     {% else %}
     <a class="btn btn-dark" href='/auth/login/' role="button">Войти в систему</a>
     <a class="btn btn-dark" href='/auth/signup/' role="button">Зарегистрироваться</a>
