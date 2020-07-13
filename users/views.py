@@ -1,15 +1,18 @@
-from django.shortcuts import render, redirect
-from .models import User, PropertyIdentifier
-from .forms import SignUpForm
-from dashboard.models import Hotel
-from django.views.generic.edit import FormView
-from django.urls import reverse_lazy
-from django.views.generic import CreateView
-from django.contrib.auth import authenticate, login
-from slugify import Slugify
 import random
 import string
 
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
+from django.views.generic.edit import FormView
+from django.views.generic import CreateView
+
+
+from slugify import Slugify
+
+from dashboard.models import Hotel
+from users.models import User, PropertyIdentifier
+from users.forms import SignUpForm
 
 def random_property_id_generator(size=88, chars=string.ascii_lowercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))

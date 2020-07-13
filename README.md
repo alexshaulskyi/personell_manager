@@ -20,6 +20,7 @@ Depending on selected checkin date and frequency of created cleanings you can au
 
 **25.06.2020** Depending on job title, users can only see and modify specific information.
 **28.06.2020** Fixed datepicker. Improved it's behavior. It is possible now to automatically set cleaning types to every room.
+**14.07.2020** Improved protection from unauthorized access.
 
 ## Planned updates
 

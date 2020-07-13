@@ -1,7 +1,8 @@
 from django import forms
-from .models import Hotel, Cleaning, Room
-from users.models import User
 from django.contrib.auth.forms import UserCreationForm
+
+from dashboard.models import Hotel, Cleaning, Room
+from users.models import User
 
 class AddEmployee(UserCreationForm):
     class Meta(UserCreationForm.Meta):

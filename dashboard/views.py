@@ -1,20 +1,17 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic.base import TemplateView
-from django.urls import reverse_lazy, reverse
-from django.views.generic import CreateView
-from django.views.generic import ListView, UpdateView, DeleteView
-from .forms import AddEmployee, CleaningCreate, RoomCreate
-from .models import Hotel, Cleaning, Room
-from users.models import User
-from django.views.generic import View
-from django.http import JsonResponse
-from django.template.loader import render_to_string
-from users.models import title_choices
-from django.apps import apps
 import datetime as dt
 
-from .mixins import DeleteMixin
+from django.apps import apps
+from django.http import JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.template.loader import render_to_string
+from django.urls import reverse_lazy, reverse
+from django.views.generic.base import TemplateView
+from django.views.generic import ListView, UpdateView, DeleteView, CreateView, View
 
+from dashboard.mixins import DeleteMixin
+from dashboard.forms import AddEmployee, CleaningCreate, RoomCreate
+from dashboard.models import Hotel, Cleaning, Room
+from users.models import User, title_choices
 
 class Index(TemplateView):
     template_name = 'index.html'
@@ -31,7 +28,10 @@ class EmployeeList(ListView):
         return context
 
     def dispatch(self, request, tidentifier):
-        if not request.user.job_title == 'MG':
+        hotel = get_object_or_404(Hotel, slug=tidentifier)
+        if request.user.works_for != hotel.name or request.user.property_id != hotel.property_id:
+            return redirect('redirectprocessor')
+        if request.user.job_title != 'MG':
             return redirect('dashboard', tidentifier=tidentifier)
         return super(EmployeeList, self).dispatch(request)
 
@@ -84,7 +84,10 @@ class CleaningList(ListView):
         return context
 
     def dispatch(self, request, tidentifier):
-        if not request.user.job_title == 'MG':
+        hotel = get_object_or_404(Hotel, slug=tidentifier)
+        if request.user.works_for != hotel.name or request.user.property_id != hotel.property_id:
+            return redirect('redirectprocessor')
+        if request.user.job_title != 'MG':
             return redirect('dashboard', tidentifier=tidentifier)
         return super(CleaningList, self).dispatch(request)
 
@@ -200,35 +203,50 @@ class UpdateDynamicSelectBox(View):
             model = apps.get_model('users', model_name)
             queryset = model.objects.filter(property_id=request.user.property_id).exclude(job_title__in=['MG', 'AD']).order_by(order_key)
             data = {'data': [{'object_id': obj.id, 'object_text': f'{obj.first_name} {obj.last_name}'} for obj in queryset]}
+            data['None'] = 'Не назначено'
             return JsonResponse(data)
         model = apps.get_model('dashboard', model_name)
         queryset = model.objects.filter(property_id=request.user.property_id).order_by(order_key)
         data = {'data': [{'object_id': obj.id, 'object_text': obj.name} for obj in queryset]}
+        data['None'] = 'Не назначено'
         return JsonResponse(data)
 
     def post(self, request):
 
-        selected_option_object_id = request.POST.get('selected_option_object_id', '') #Id of a newly selected object (new object to be related to a model which is being changed)
+        if not 'set_none' in request.POST:
+            selected_option_object_id = request.POST.get('selected_option_object_id', '') #Id of a newly selected object (new object to be related to a model which is being changed)
         selected_option_model = request.POST.get('selected_option_object_model', '') #Model of a newly selected object
         model_name = request.POST.get('model_name', '') #Name of a model which newly selected object is related to (model of an object which is actually being changed)
         model_field_name = request.POST.get('model_field_name', '') # Name of a field which is being changed
         model_instance_id = request.POST.get('model_instance_id', '') # Id of an object which is being changed
 
+
         if selected_option_model == 'User':
             new_object_model = apps.get_model('users', selected_option_model) #Retrieving model of the selected option object for User objects
         else:
             new_object_model = apps.get_model('dashboard', selected_option_model) #Retrieving model of the selected option object for other objects
-
-        new_object = get_object_or_404(new_object_model, id=selected_option_object_id) #Retrieving newly selected object
+        if not 'set_none' in request.POST:
+            new_object = get_object_or_404(new_object_model, id=selected_option_object_id) #Retrieving newly selected object
+        else:
+            new_object = None
         update_object_model = apps.get_model('dashboard', model_name) #Retrieving model of an object which is being updated
         update_object = get_object_or_404(update_object_model, id=model_instance_id) #Retrieving object which is being updated
         setattr(update_object, model_field_name, new_object)
+
         update_object.save()
 
         if selected_option_model == 'User':
-            data = {'object_text': f'{new_object.first_name} {new_object.last_name}', 'object_id': new_object.id}
+            if 'set_none' in request.POST:
+                data = {'object_text': 'Не назначено', 'object_id': None}
+            else:
+                data = {'object_text': f'{new_object.first_name} {new_object.last_name}', 'object_id': new_object.id}
             return JsonResponse(data)
-        data = {'object_text': new_object.name, 'object_id': new_object.id}
+
+        else:
+            if 'set_none' in request.POST:
+                data = {'object_text': 'Не назначено', 'object_id': None}
+            else:
+                data = {'object_text': new_object.name, 'object_id': new_object.id}
         return JsonResponse(data)
 
 """ Following class is responsible for updating regular input
@@ -262,7 +280,11 @@ class UpdateStaticFieldsAndSelectElements(View):
         update_object = get_object_or_404(update_object_model, id=model_instance_id)
 
         if new_value == '':
-            setattr(update_object, model_field_name, None)
+            if model_field_name in ['checkin_date', 'checkout_date']:
+                setattr(update_object, model_field_name, None)
+            else:
+                data = {'error': 'Это поле не может быть пустым, изменения не будут применены'}
+                return JsonResponse(data)
         else:
             setattr(update_object, model_field_name, new_value)
         update_object.save()

@@ -113,6 +113,7 @@ var saveForm = function () {
         td.html(sel)
         $(data.data).each(function() {
         sel.append($("<option>").attr('value', this.object_id).text(this.object_text));
+        sel.append($('<option>').text(data.None));
         td.removeClass('text-md-center editable-select').addClass('text-md-center')
         })
       }
@@ -122,7 +123,6 @@ var saveForm = function () {
 
   $(document).on("blur", ".choice-box", function(){
     var input_value_text = $(this).find("option:selected").text() // option object text
-    var selected_option_object_id = $(this).find("option:selected").val() // option object id
     var td=$(this).parent("td");
     var model_name = td.attr('data-model') // model name
     var model_field = td.attr('data-field') // model field name
@@ -131,11 +131,17 @@ var saveForm = function () {
     $(this).remove();
     td.removeClass('text-md-center').addClass('text-md-center editable-select')
     td.html(input_value_text);
+    if (input_value_text == 'Не назначено') {
+      data = {'set_none': 'set_none', 'selected_option_object_model': selected_option_object_model, 'model_name': model_name, 'model_field_name': model_field, 'model_instance_id': model_instnace_id, 'csrfmiddlewaretoken': "{{ csrf_token }}"}
+    } else {
+      var selected_option_object_id = $(this).find("option:selected").val() // option object id
+      data = {'selected_option_object_id': selected_option_object_id, 'selected_option_object_model': selected_option_object_model, 'model_name': model_name, 'model_field_name': model_field, 'model_instance_id': model_instnace_id, 'csrfmiddlewaretoken': "{{ csrf_token }}"}
+    }
     $.ajax({
       url: "{% url 'ajax_update_dynamic_value' %}",
       type: 'post',
       dataType: 'json',
-      data: {'selected_option_object_id': selected_option_object_id, 'selected_option_object_model': selected_option_object_model, 'model_name': model_name, 'model_field_name': model_field, 'model_instance_id': model_instnace_id, 'csrfmiddlewaretoken': "{{ csrf_token }}"},
+      data: data,
       success: function (data) {
         td.html(data.object_text)
       }

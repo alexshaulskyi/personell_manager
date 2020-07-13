@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from django.template.loader import render_to_string
 from django.shortcuts import redirect
+from django.template.loader import render_to_string
 
 from dashboard.models import Hotel
 

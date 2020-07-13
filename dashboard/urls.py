@@ -1,5 +1,5 @@
-from django.urls import path
 from django.contrib.auth.decorators import login_required
+from django.urls import path
 from .views import (Index, CleaningCreate, CreateEmployee,
                    EmployeeList, CreateCleaning, CreateRoom, UpdateDynamicSelectBox,
                    UpdateStaticFieldsAndSelectElements, DeleteEmployee, CleaningList,
